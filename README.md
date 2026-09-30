@@ -9,10 +9,16 @@ deploy no Cloudflare Pages — custo zero (seção 10 da especificação).
 
 ## Status
 
-**Semana 1 do roadmap (seção 14) concluída:** scaffold do app, schema do
-banco + RLS (`supabase/migrations/`) e login (Google + link mágico por
-e-mail). Ainda falta conectar a um projeto Supabase real — siga o
-[`SETUP.md`](./SETUP.md).
+**Semana 1 do roadmap (seção 14) concluída e no ar:**
+- App publicado: https://obra-facil-5r1.pages.dev (Cloudflare Pages)
+- Repositório: https://github.com/bradockturim/obra-facil
+- Projeto Supabase real conectado, migrations `0001` (schema) e `0002`
+  (RLS) aplicadas
+- Login por link mágico (e-mail) funcionando; login Google pendente de
+  colar o Client ID/Secret em Authentication → Providers → Google no
+  painel do Supabase
+
+Detalhes/checklist de provisionamento em [`SETUP.md`](./SETUP.md).
 
 ## Rodando localmente
 
