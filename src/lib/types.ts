@@ -200,3 +200,40 @@ export interface Dispute {
   resolvida_em: string | null
   created_at: string
 }
+
+// ─── Semana 7: avaliações e anúncios ────────────────────────────────────
+
+export interface Review {
+  id: string
+  job_id: string
+  autor_id: string
+  alvo_id: string
+  qualidade: number | null
+  pontualidade: number | null
+  limpeza: number | null
+  comunicacao: number | null
+  nota_geral: number
+  comentario: string | null
+  fotos: string[]
+  resposta: string | null
+  publica: boolean
+  created_at: string
+}
+
+export interface Advertiser {
+  id: string
+  nome: string
+  cnpj: string | null
+  contato: string | null
+}
+
+export interface AdCampaign {
+  id: string
+  advertiser_id: string
+  criativo_url: string | null
+  categoria_id: string | null
+  link: string | null
+  inicio: string
+  fim: string
+  ativa: boolean
+}

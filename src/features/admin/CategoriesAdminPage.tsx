@@ -1,5 +1,11 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { Plus } from 'lucide-react'
 import { supabase } from '@/lib/supabaseClient'
+import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { Input, Select } from '@/components/ui/fields'
+import { PageLoader } from '@/components/ui/Spinner'
 import type { Category } from '@/lib/types'
 
 const DIACRITICS = /[̀-ͯ]/g
@@ -60,67 +66,64 @@ export function CategoriesAdminPage() {
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleCreate} className="flex flex-wrap items-end gap-3">
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Nova categoria</label>
-          <input
+      <Card>
+        <form onSubmit={handleCreate} className="flex flex-wrap items-end gap-3">
+          <Input
+            label="Nova categoria"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             placeholder="Ex.: Jardinagem"
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
           />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Tipo</label>
-          <select
+          <Select
+            label="Tipo"
             value={tipo}
             onChange={(e) => setTipo(e.target.value as 'servico' | 'lead')}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
           >
             <option value="servico">Serviço (Pagamento Garantido)</option>
             <option value="lead">Lead (parceiro)</option>
-          </select>
-        </div>
-        <button
-          type="submit"
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
-        >
-          Adicionar
-        </button>
-      </form>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+          </Select>
+          <Button type="submit">
+            <Plus className="h-4 w-4" /> Adicionar
+          </Button>
+        </form>
+        {error && <p className="mt-2 text-sm text-danger-600">{error}</p>}
+      </Card>
 
       {loading ? (
-        <p className="text-sm text-slate-400">Carregando...</p>
+        <PageLoader />
       ) : (
-        <table className="w-full overflow-hidden rounded-xl bg-white text-sm shadow-sm">
-          <thead className="bg-slate-100 text-left text-slate-500">
-            <tr>
-              <th className="px-4 py-2">Nome</th>
-              <th className="px-4 py-2">Tipo</th>
-              <th className="px-4 py-2">Ativa</th>
-              <th className="px-4 py-2" />
-            </tr>
-          </thead>
-          <tbody>
-            {categories.map((c) => (
-              <tr key={c.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 text-slate-800">{c.nome}</td>
-                <td className="px-4 py-2 text-slate-500">{c.tipo}</td>
-                <td className="px-4 py-2">{c.ativa ? 'Sim' : 'Não'}</td>
-                <td className="px-4 py-2 text-right">
-                  <button
-                    type="button"
-                    onClick={() => toggleAtiva(c)}
-                    className="text-brand-600 underline"
-                  >
-                    {c.ativa ? 'Desativar' : 'Ativar'}
-                  </button>
-                </td>
+        <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/70">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-left text-slate-500">
+              <tr>
+                <th className="px-4 py-2.5 font-medium">Nome</th>
+                <th className="px-4 py-2.5 font-medium">Tipo</th>
+                <th className="px-4 py-2.5 font-medium">Ativa</th>
+                <th className="px-4 py-2.5" />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {categories.map((c) => (
+                <tr key={c.id} className="border-t border-slate-100">
+                  <td className="px-4 py-2.5 text-slate-800">{c.nome}</td>
+                  <td className="px-4 py-2.5 text-slate-500">{c.tipo}</td>
+                  <td className="px-4 py-2.5">
+                    <Badge tone={c.ativa ? 'success' : 'neutral'}>{c.ativa ? 'Sim' : 'Não'}</Badge>
+                  </td>
+                  <td className="px-4 py-2.5 text-right">
+                    <button
+                      type="button"
+                      onClick={() => toggleAtiva(c)}
+                      className="text-brand-600 hover:text-brand-700 hover:underline"
+                    >
+                      {c.ativa ? 'Desativar' : 'Ativar'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   )

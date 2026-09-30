@@ -1,7 +1,12 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import { HardHat, UploadCloud } from 'lucide-react'
 import { useAuth } from '@/features/auth/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
 import { publicUrl, uploadFile } from '@/lib/storage'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Input, Textarea } from '@/components/ui/fields'
+import { PageLoader } from '@/components/ui/Spinner'
 import type { Category, DocsStatus, Neighborhood } from '@/lib/types'
 
 const STATUS_LABEL: Record<DocsStatus, string> = {
@@ -9,6 +14,65 @@ const STATUS_LABEL: Record<DocsStatus, string> = {
   em_analise: 'Em análise pela nossa equipe',
   aprovado: 'Aprovado',
   rejeitado: 'Rejeitado — entre em contato com o suporte',
+}
+
+function Chip({
+  selected,
+  onClick,
+  children,
+}: {
+  selected: boolean
+  onClick: () => void
+  children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full border px-3 py-1.5 text-sm transition ${
+        selected
+          ? 'border-brand-600 bg-brand-50 text-brand-700'
+          : 'border-slate-300 text-slate-600 hover:border-slate-400'
+      }`}
+    >
+      {children}
+    </button>
+  )
+}
+
+function FileField({
+  label,
+  onChange,
+  multiple,
+  hint,
+}: {
+  label: string
+  onChange: (files: File[]) => void
+  multiple?: boolean
+  hint?: string
+}) {
+  const [count, setCount] = useState(0)
+  return (
+    <div>
+      <label className="mb-1 block text-sm font-medium text-slate-700">{label}</label>
+      <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-slate-300 px-3 py-2.5 text-sm text-slate-500 transition hover:border-brand-400 hover:text-brand-600">
+        <UploadCloud className="h-4 w-4" />
+        {count > 0 ? `${count} arquivo(s) selecionado(s)` : 'Escolher arquivo(s)'}
+        <input
+          type="file"
+          accept="image/*,application/pdf"
+          multiple={multiple}
+          className="hidden"
+          onChange={(e) => {
+            const files = Array.from(e.target.files ?? [])
+            setCount(files.length)
+            onChange(files)
+          }}
+        />
+      </label>
+      {hint && <p className="mt-1 text-xs text-slate-400">{hint}</p>}
+    </div>
+  )
 }
 
 export function OnboardingPage() {
@@ -123,25 +187,24 @@ export function OnboardingPage() {
     }
   }
 
-  if (existingStatus === undefined) {
-    return <p className="px-4 py-10 text-center text-sm text-slate-400">Carregando...</p>
-  }
+  if (existingStatus === undefined) return <PageLoader />
 
   if (done || existingStatus) {
     const status = done ? 'em_analise' : (existingStatus as DocsStatus)
     return (
       <div className="mx-auto max-w-lg px-4 py-10">
-        <div className="rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-200">
-          <h1 className="text-xl font-bold text-slate-800">Cadastro de profissional</h1>
-          <p className="mt-3 text-slate-600">
+        <Card className="space-y-2 text-center">
+          <HardHat className="mx-auto h-8 w-8 text-brand-500" />
+          <h1 className="text-xl font-bold text-slate-900">Cadastro de profissional</h1>
+          <p className="text-slate-600">
             Status: <span className="font-semibold">{STATUS_LABEL[status]}</span>
           </p>
           {status === 'em_analise' && (
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="text-sm text-slate-400">
               Nossa equipe confere seus documentos e o portfólio em breve.
             </p>
           )}
-        </div>
+        </Card>
       </div>
     )
   }
@@ -149,142 +212,79 @@ export function OnboardingPage() {
   return (
     <div className="mx-auto max-w-lg space-y-6 px-4 py-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800">Cadastro de profissional</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Cadastro de profissional</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Preencha seus dados e envie documento + fotos de obras para
-          verificação (seção 5.2 do produto).
+          Preencha seus dados e envie documento + fotos de obras para verificação.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">
-            Sobre você / sua experiência
-          </label>
-          <textarea
+      <Card>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Textarea
+            label="Sobre você / sua experiência"
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             rows={3}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
           />
-        </div>
 
-        <div>
-          <span className="mb-1 block text-sm font-medium text-slate-700">Categorias</span>
-          <div className="flex flex-wrap gap-2">
-            {categories.map((c) => (
-              <label
-                key={c.id}
-                className={`cursor-pointer rounded-full border px-3 py-1.5 text-sm ${
-                  selectedCategorias.includes(c.id)
-                    ? 'border-brand-600 bg-brand-50 text-brand-700'
-                    : 'border-slate-300 text-slate-600'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  className="hidden"
-                  checked={selectedCategorias.includes(c.id)}
-                  onChange={() => toggle(selectedCategorias, c.id, setSelectedCategorias)}
-                />
-                {c.nome}
-              </label>
-            ))}
+          <div>
+            <span className="mb-1 block text-sm font-medium text-slate-700">Categorias</span>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((c) => (
+                <Chip
+                  key={c.id}
+                  selected={selectedCategorias.includes(c.id)}
+                  onClick={() => toggle(selectedCategorias, c.id, setSelectedCategorias)}
+                >
+                  {c.nome}
+                </Chip>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div>
-          <span className="mb-1 block text-sm font-medium text-slate-700">Bairros atendidos</span>
-          <div className="flex flex-wrap gap-2">
-            {neighborhoods.map((n) => (
-              <label
-                key={n.id}
-                className={`cursor-pointer rounded-full border px-3 py-1.5 text-sm ${
-                  selectedBairros.includes(n.id)
-                    ? 'border-brand-600 bg-brand-50 text-brand-700'
-                    : 'border-slate-300 text-slate-600'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  className="hidden"
-                  checked={selectedBairros.includes(n.id)}
-                  onChange={() => toggle(selectedBairros, n.id, setSelectedBairros)}
-                />
-                {n.nome}
-              </label>
-            ))}
+          <div>
+            <span className="mb-1 block text-sm font-medium text-slate-700">Bairros atendidos</span>
+            <div className="flex flex-wrap gap-2">
+              {neighborhoods.map((n) => (
+                <Chip
+                  key={n.id}
+                  selected={selectedBairros.includes(n.id)}
+                  onClick={() => toggle(selectedBairros, n.id, setSelectedBairros)}
+                >
+                  {n.nome}
+                </Chip>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">
-            Chave Pix (para repasses — seção 5.4)
-          </label>
-          <input
+          <Input
+            label="Chave Pix (para repasses)"
             value={chavePix}
             onChange={(e) => setChavePix(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
           />
-        </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">
-            Documento (RG/CNH/CNPJ)
-          </label>
-          <input
-            type="file"
-            accept="image/*,application/pdf"
-            onChange={(e) => setDocFile(e.target.files?.[0] ?? null)}
-            className="w-full text-sm"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Selfie</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setSelfieFile(e.target.files?.[0] ?? null)}
-            className="w-full text-sm"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">
-            Fotos de obras (3 a 10)
-          </label>
-          <input
-            type="file"
-            accept="image/*"
+          <FileField label="Documento (RG/CNH/CNPJ)" onChange={(f) => setDocFile(f[0] ?? null)} />
+          <FileField label="Selfie" onChange={(f) => setSelfieFile(f[0] ?? null)} />
+          <FileField
+            label="Fotos de obras (3 a 10)"
             multiple
-            onChange={(e) => setPortfolioFiles(Array.from(e.target.files ?? []))}
-            className="w-full text-sm"
+            onChange={setPortfolioFiles}
+            hint={`${portfolioFiles.length} selecionada(s)`}
           />
-          <p className="mt-1 text-xs text-slate-400">{portfolioFiles.length} selecionada(s)</p>
-        </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">
-            Referência (nome e contato de um cliente anterior, opcional)
-          </label>
-          <input
+          <Input
+            label="Referência (nome e contato de um cliente anterior, opcional)"
             value={referencia}
             onChange={(e) => setReferencia(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
           />
-        </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-danger-600">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
-        >
-          {submitting ? 'Enviando...' : 'Enviar para verificação'}
-        </button>
-      </form>
+          <Button type="submit" className="w-full" disabled={submitting}>
+            {submitting ? 'Enviando...' : 'Enviar para verificação'}
+          </Button>
+        </form>
+      </Card>
     </div>
   )
 }

@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react'
+import { MessageSquareWarning } from 'lucide-react'
 import { supabase } from '@/lib/supabaseClient'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { PageLoader } from '@/components/ui/Spinner'
 import type { Dispute } from '@/lib/types'
 
 interface DisputeRow extends Dispute {
@@ -53,16 +58,16 @@ export function DisputesAdminPage() {
     setBusyId(null)
   }
 
-  if (loading) return <p className="text-sm text-slate-400">Carregando...</p>
+  if (loading) return <PageLoader />
 
   if (disputes.length === 0) {
-    return <p className="text-sm text-slate-400">Nenhuma contestação em aberto.</p>
+    return <EmptyState icon={MessageSquareWarning} title="Nenhuma contestação em aberto" />
   }
 
   return (
-    <ul className="space-y-4">
+    <div className="space-y-4">
       {disputes.map((d) => (
-        <li key={d.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <Card key={d.id}>
           <p className="font-semibold text-slate-800">{d.job_stages?.descricao ?? 'Etapa'}</p>
           <p className="text-sm text-slate-500">
             Valor da etapa: R$ {(d.job_stages?.valor ?? 0).toFixed(2)} · Aberta por{' '}
@@ -72,26 +77,18 @@ export function DisputesAdminPage() {
           {d.fotos.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-2">
               {d.fotos.map((url) => (
-                <img key={url} src={url} className="h-16 w-16 rounded-lg object-cover" />
+                <img key={url} src={url} className="h-16 w-16 rounded-lg object-cover ring-1 ring-slate-200" />
               ))}
             </div>
           )}
 
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <button
-              disabled={busyId === d.id}
-              onClick={() => void resolver(d, 'liberar')}
-              className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-60"
-            >
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <Button variant="success" size="sm" disabled={busyId === d.id} onClick={() => void resolver(d, 'liberar')}>
               Liberar ao profissional
-            </button>
-            <button
-              disabled={busyId === d.id}
-              onClick={() => void resolver(d, 'reembolsar')}
-              className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
-            >
+            </Button>
+            <Button variant="danger" size="sm" disabled={busyId === d.id} onClick={() => void resolver(d, 'reembolsar')}>
               Reembolsar cliente
-            </button>
+            </Button>
             <input
               type="number"
               min="0"
@@ -99,18 +96,18 @@ export function DisputesAdminPage() {
               placeholder="R$ para o profissional"
               value={splitValues[d.id] ?? ''}
               onChange={(e) => setSplitValues((prev) => ({ ...prev, [d.id]: e.target.value }))}
-              className="w-40 rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
+              className="w-40 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
             />
             <button
               disabled={busyId === d.id || !splitValues[d.id]}
               onClick={() => void resolver(d, 'dividir')}
-              className="rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-60"
+              className="rounded-lg bg-warning-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-warning-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Dividir
             </button>
           </div>
-        </li>
+        </Card>
       ))}
-    </ul>
+    </div>
   )
 }

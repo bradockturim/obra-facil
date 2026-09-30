@@ -22,6 +22,7 @@ import { VerificationQueuePage } from '@/features/admin/VerificationQueuePage'
 import { CategoriesAdminPage } from '@/features/admin/CategoriesAdminPage'
 import { FinanceAdminPage } from '@/features/admin/FinanceAdminPage'
 import { DisputesAdminPage } from '@/features/admin/DisputesAdminPage'
+import { AdsAdminPage } from '@/features/admin/AdsAdminPage'
 
 export default function App() {
   return (
@@ -127,6 +128,7 @@ export default function App() {
               <Route path="categorias" element={<CategoriesAdminPage />} />
               <Route path="financeiro" element={<FinanceAdminPage />} />
               <Route path="contestacoes" element={<DisputesAdminPage />} />
+              <Route path="anuncios" element={<AdsAdminPage />} />
             </Route>
           </Route>
         </Routes>

@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ChevronRight, HardHat } from 'lucide-react'
 import { useAuth } from '@/features/auth/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
+import { Card } from '@/components/ui/Card'
+import { Badge, type BadgeTone } from '@/components/ui/Badge'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { PageLoader } from '@/components/ui/Spinner'
 import type { Job } from '@/lib/types'
 
 const STATUS_LABEL: Record<string, string> = {
@@ -9,6 +14,13 @@ const STATUS_LABEL: Record<string, string> = {
   concluida: 'Concluída',
   cancelada: 'Cancelada',
   em_disputa: 'Em disputa',
+}
+
+const STATUS_TONE: Record<string, BadgeTone> = {
+  em_andamento: 'info',
+  concluida: 'success',
+  cancelada: 'neutral',
+  em_disputa: 'danger',
 }
 
 export function JobListPage() {
@@ -29,33 +41,35 @@ export function JobListPage() {
       })
   }, [user])
 
-  if (loading) return <p className="px-4 py-10 text-center text-sm text-slate-400">Carregando...</p>
+  if (loading) return <PageLoader />
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4 px-4 py-8">
-      <h1 className="text-2xl font-bold text-slate-800">Minhas obras</h1>
+    <div className="mx-auto max-w-3xl space-y-5 px-4 py-8">
+      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Minhas obras</h1>
       {jobs.length === 0 ? (
-        <p className="text-sm text-slate-400">
-          Nenhuma obra ainda — elas aparecem aqui assim que uma proposta é aceita.
-        </p>
+        <EmptyState
+          icon={HardHat}
+          title="Nenhuma obra ainda"
+          description="Elas aparecem aqui assim que uma proposta é aceita."
+        />
       ) : (
-        <ul className="space-y-3">
+        <div className="space-y-3">
           {jobs.map((j) => (
-            <li key={j.id}>
-              <Link
-                to={`/obras/${j.id}`}
-                className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:border-brand-500"
-              >
+            <Link key={j.id} to={`/obras/${j.id}`}>
+              <Card interactive className="flex items-center justify-between">
                 <p className="text-sm text-slate-500">
                   Iniciada em {new Date(j.iniciado_em).toLocaleDateString('pt-BR')}
                 </p>
-                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-                  {STATUS_LABEL[j.status] ?? j.status}
-                </span>
-              </Link>
-            </li>
+                <div className="flex items-center gap-2">
+                  <Badge tone={STATUS_TONE[j.status] ?? 'neutral'}>
+                    {STATUS_LABEL[j.status] ?? j.status}
+                  </Badge>
+                  <ChevronRight className="h-4 w-4 text-slate-300" />
+                </div>
+              </Card>
+            </Link>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   )

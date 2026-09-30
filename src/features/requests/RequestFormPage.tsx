@@ -1,8 +1,12 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { Send } from 'lucide-react'
 import { useAuth } from '@/features/auth/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
 import { publicUrl, uploadFile } from '@/lib/storage'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Input, Select, Textarea } from '@/components/ui/fields'
 import type { Category, Neighborhood } from '@/lib/types'
 
 export function RequestFormPage() {
@@ -90,88 +94,60 @@ export function RequestFormPage() {
 
   return (
     <div className="mx-auto max-w-lg space-y-6 px-4 py-8">
-      <h1 className="text-2xl font-bold text-slate-800">Pedir orçamento</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Pedir orçamento</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Categoria</label>
-          <select
-            value={categoriaId}
-            onChange={(e) => setCategoriaId(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          >
+      <Card>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Select label="Categoria" value={categoriaId} onChange={(e) => setCategoriaId(e.target.value)}>
             <option value="">Selecione...</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.nome}
               </option>
             ))}
-          </select>
-        </div>
+          </Select>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">
-            Descreva o serviço
-          </label>
-          <textarea
+          <Textarea
+            label="Descreva o serviço"
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
             rows={4}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
           />
-        </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Bairro</label>
-          <select
-            value={bairroId}
-            onChange={(e) => setBairroId(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          >
+          <Select label="Bairro" value={bairroId} onChange={(e) => setBairroId(e.target.value)}>
             <option value="">Selecione...</option>
             {neighborhoods.map((n) => (
               <option key={n.id} value={n.id}>
                 {n.nome}
               </option>
             ))}
-          </select>
-        </div>
+          </Select>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">
-            Prazo desejado (opcional)
-          </label>
-          <input
+          <Input
+            label="Prazo desejado (opcional)"
             value={prazo}
             onChange={(e) => setPrazo(e.target.value)}
             placeholder="Ex.: até 2 semanas"
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
           />
-        </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">
-            Fotos (opcional)
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={(e) => setFotos(Array.from(e.target.files ?? []))}
-            className="w-full text-sm"
-          />
-        </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Fotos (opcional)</label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => setFotos(Array.from(e.target.files ?? []))}
+              className="text-sm"
+            />
+          </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-danger-600">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
-        >
-          {submitting ? 'Enviando...' : 'Enviar pedido'}
-        </button>
-      </form>
+          <Button type="submit" className="w-full" disabled={submitting}>
+            <Send className="h-4 w-4" /> {submitting ? 'Enviando...' : 'Enviar pedido'}
+          </Button>
+        </form>
+      </Card>
     </div>
   )
 }

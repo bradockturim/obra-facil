@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { Check, ChevronLeft, Copy, QrCode } from 'lucide-react'
 import { useAuth } from '@/features/auth/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
 import { DemoBanner } from '@/components/DemoBanner'
+import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { PageLoader } from '@/components/ui/Spinner'
 import type { Job, JobStage } from '@/lib/types'
 
 export function CheckoutPage() {
@@ -87,7 +92,7 @@ export function CheckoutPage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  if (loading) return <p className="px-4 py-10 text-center text-sm text-slate-400">Carregando...</p>
+  if (loading) return <PageLoader />
 
   if (notAllowed || !job || !stage) {
     return (
@@ -103,41 +108,35 @@ export function CheckoutPage() {
   if (confirmed) {
     return (
       <div className="mx-auto max-w-lg space-y-6 px-4 py-8">
-        <div className="rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-200">
-          <p className="inline-block rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-700">
-            Retida
-          </p>
-          <h1 className="mt-3 text-xl font-bold text-slate-800">Pagamento confirmado</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            O valor da etapa "{stage.descricao}" está retido até a
-            aprovação da conclusão.
-          </p>
+        <Card className="space-y-4 text-center">
+          <Badge tone="success">Retida</Badge>
+          <div>
+            <h1 className="text-xl font-bold text-slate-900">Pagamento confirmado</h1>
+            <p className="mt-1 text-sm text-slate-500">
+              O valor da etapa "{stage.descricao}" está retido até a
+              aprovação da conclusão.
+            </p>
+          </div>
 
           <DemoBanner />
 
           {chavePix && (
-            <div className="mt-4 rounded-lg bg-slate-50 p-4 text-left">
+            <div className="rounded-xl bg-slate-50 p-4 text-left">
               <p className="text-sm font-medium text-slate-700">
                 Pagar o profissional agora (Pix direto)
               </p>
               <p className="mt-1 break-all font-mono text-sm text-slate-600">{chavePix}</p>
-              <button
-                type="button"
-                onClick={copiarChave}
-                className="mt-2 rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
-              >
+              <Button variant="secondary" size="sm" className="mt-2" onClick={copiarChave}>
+                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 {copied ? 'Copiado!' : 'Copiar chave Pix'}
-              </button>
+              </Button>
             </div>
           )}
 
-          <Link
-            to={`/obras/${job.id}`}
-            className="mt-6 inline-block rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
-          >
-            Ver acompanhamento da obra
+          <Link to={`/obras/${job.id}`}>
+            <Button className="w-full">Ver acompanhamento da obra</Button>
           </Link>
-        </div>
+        </Card>
       </div>
     )
   }
@@ -145,15 +144,18 @@ export function CheckoutPage() {
   return (
     <div className="mx-auto max-w-lg space-y-6 px-4 py-8">
       <div>
-        <Link to={`/obras/${job.id}`} className="text-sm text-slate-400 hover:text-brand-600">
-          ← Acompanhamento da obra
+        <Link
+          to={`/obras/${job.id}`}
+          className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-brand-600"
+        >
+          <ChevronLeft className="h-4 w-4" /> Acompanhamento da obra
         </Link>
-        <h1 className="mt-1 text-2xl font-bold text-slate-800">Pagar etapa</h1>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">Pagar etapa</h1>
       </div>
 
       <DemoBanner />
 
-      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <Card>
         <p className="font-semibold text-slate-800">{stage.descricao}</p>
         <p className="mt-1 text-2xl font-bold text-brand-700">R$ {stage.valor.toFixed(2)}</p>
         <p className="mt-2 text-sm text-slate-500">
@@ -165,14 +167,14 @@ export function CheckoutPage() {
           <button
             type="button"
             onClick={() => setMetodo('pix')}
-            className={`px-3 py-2 text-sm font-medium ${metodo === 'pix' ? 'border-b-2 border-brand-600 text-brand-700' : 'text-slate-500'}`}
+            className={`px-3 py-2 text-sm font-medium transition ${metodo === 'pix' ? 'border-b-2 border-brand-600 text-brand-700' : 'text-slate-500 hover:text-slate-700'}`}
           >
             Pix
           </button>
           <button
             type="button"
             onClick={() => setMetodo('cartao')}
-            className={`px-3 py-2 text-sm font-medium ${metodo === 'cartao' ? 'border-b-2 border-brand-600 text-brand-700' : 'text-slate-500'}`}
+            className={`px-3 py-2 text-sm font-medium transition ${metodo === 'cartao' ? 'border-b-2 border-brand-600 text-brand-700' : 'text-slate-500 hover:text-slate-700'}`}
           >
             Cartão
           </button>
@@ -180,8 +182,8 @@ export function CheckoutPage() {
 
         {metodo === 'pix' ? (
           <div className="mt-4 space-y-3">
-            <div className="flex h-40 w-40 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 text-xs text-slate-400">
-              QR Pix (demonstração)
+            <div className="flex h-40 w-40 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 text-xs text-slate-400">
+              <QrCode className="h-16 w-16 text-slate-300" strokeWidth={1} />
             </div>
             <div>
               <p className="text-xs font-medium text-slate-500">Pix copia e cola (demonstração)</p>
@@ -222,17 +224,12 @@ export function CheckoutPage() {
           </div>
         )}
 
-        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-3 text-sm text-danger-600">{error}</p>}
 
-        <button
-          type="button"
-          onClick={() => void simularPagamento()}
-          disabled={confirming}
-          className="mt-6 w-full rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
-        >
+        <Button className="mt-6 w-full" disabled={confirming} onClick={() => void simularPagamento()}>
           {confirming ? 'Processando...' : 'Simular pagamento'}
-        </button>
-      </div>
+        </Button>
+      </Card>
     </div>
   )
 }

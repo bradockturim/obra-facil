@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
+import { Card } from '@/components/ui/Card'
+import { Badge, type BadgeTone } from '@/components/ui/Badge'
+import { PageLoader } from '@/components/ui/Spinner'
 import type { Payment } from '@/lib/types'
 
 interface PaymentRow extends Payment {
@@ -13,6 +16,15 @@ const STATUS_LABEL: Record<string, string> = {
   reembolsado: 'Reembolsado',
   falhou: 'Falhou',
   expirado: 'Expirado',
+}
+
+const STATUS_TONE: Record<string, BadgeTone> = {
+  pendente: 'neutral',
+  pago_retido: 'info',
+  liberado: 'success',
+  reembolsado: 'warning',
+  falhou: 'danger',
+  expirado: 'danger',
 }
 
 export function FinanceAdminPage() {
@@ -44,64 +56,62 @@ export function FinanceAdminPage() {
     setBusyId(null)
   }
 
-  if (loading) return <p className="text-sm text-slate-400">Carregando...</p>
+  if (loading) return <PageLoader />
 
   const gmv = payments.reduce((sum, p) => (p.status === 'liberado' ? sum + p.valor : sum), 0)
   const comissao = payments.reduce((sum, p) => (p.status === 'liberado' ? sum + p.taxa_plataforma : sum), 0)
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-6 rounded-xl bg-white p-4 text-sm shadow-sm">
-        <div>
-          <p className="text-slate-400">GMV simulado (liberado)</p>
-          <p className="text-lg font-bold text-slate-800">R$ {gmv.toFixed(2)}</p>
-        </div>
-        <div>
-          <p className="text-slate-400">Comissão simulada</p>
-          <p className="text-lg font-bold text-slate-800">R$ {comissao.toFixed(2)}</p>
-        </div>
+      <div className="grid grid-cols-2 gap-4">
+        <Card>
+          <p className="text-sm text-slate-400">GMV simulado (liberado)</p>
+          <p className="text-2xl font-bold text-slate-900">R$ {gmv.toFixed(2)}</p>
+        </Card>
+        <Card>
+          <p className="text-sm text-slate-400">Comissão simulada</p>
+          <p className="text-2xl font-bold text-slate-900">R$ {comissao.toFixed(2)}</p>
+        </Card>
       </div>
 
-      <div className="overflow-x-auto rounded-xl bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/70">
         <table className="w-full text-sm">
-          <thead className="bg-slate-100 text-left text-slate-500">
+          <thead className="bg-slate-50 text-left text-slate-500">
             <tr>
-              <th className="px-4 py-2">Etapa</th>
-              <th className="px-4 py-2">Método</th>
-              <th className="px-4 py-2">Valor</th>
-              <th className="px-4 py-2">Status</th>
-              <th className="px-4 py-2">Criado em</th>
-              <th className="px-4 py-2" />
+              <th className="px-4 py-2.5 font-medium">Etapa</th>
+              <th className="px-4 py-2.5 font-medium">Método</th>
+              <th className="px-4 py-2.5 font-medium">Valor</th>
+              <th className="px-4 py-2.5 font-medium">Status</th>
+              <th className="px-4 py-2.5 font-medium">Criado em</th>
+              <th className="px-4 py-2.5" />
             </tr>
           </thead>
           <tbody>
             {payments.map((p) => (
               <tr key={p.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 text-slate-700">{p.job_stages?.descricao ?? '—'}</td>
-                <td className="px-4 py-2 text-slate-500">{p.metodo}</td>
-                <td className="px-4 py-2 text-slate-700">R$ {p.valor.toFixed(2)}</td>
-                <td className="px-4 py-2">
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-                    {STATUS_LABEL[p.status] ?? p.status}
-                  </span>
+                <td className="px-4 py-2.5 text-slate-700">{p.job_stages?.descricao ?? '—'}</td>
+                <td className="px-4 py-2.5 text-slate-500 capitalize">{p.metodo}</td>
+                <td className="px-4 py-2.5 text-slate-700">R$ {p.valor.toFixed(2)}</td>
+                <td className="px-4 py-2.5">
+                  <Badge tone={STATUS_TONE[p.status] ?? 'neutral'}>{STATUS_LABEL[p.status] ?? p.status}</Badge>
                 </td>
-                <td className="px-4 py-2 text-xs text-slate-400">
+                <td className="px-4 py-2.5 text-xs text-slate-400">
                   {new Date(p.criado_em).toLocaleString('pt-BR')}
                 </td>
-                <td className="px-4 py-2 text-right text-xs">
+                <td className="px-4 py-2.5 text-right text-xs">
                   {p.status === 'pendente' && (
                     <>
                       <button
                         disabled={busyId === p.id}
                         onClick={() => void forcar(p.id, 'falhar')}
-                        className="mr-2 text-red-600 underline"
+                        className="mr-3 text-danger-600 hover:underline"
                       >
                         Forçar falha
                       </button>
                       <button
                         disabled={busyId === p.id}
                         onClick={() => void forcar(p.id, 'expirar')}
-                        className="text-amber-600 underline"
+                        className="text-warning-600 hover:underline"
                       >
                         Expirar
                       </button>
@@ -111,7 +121,7 @@ export function FinanceAdminPage() {
                     <button
                       disabled={busyId === p.id}
                       onClick={() => void forcar(p.id, 'estornar')}
-                      className="text-red-600 underline"
+                      className="text-danger-600 hover:underline"
                     >
                       Estornar
                     </button>

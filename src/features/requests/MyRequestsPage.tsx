@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ClipboardList, MessageCircle } from 'lucide-react'
 import { useAuth } from '@/features/auth/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
+import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { PageLoader } from '@/components/ui/Spinner'
 
 interface RequestRow {
   id: string
@@ -44,27 +49,26 @@ export function MyRequestsPage() {
     void load()
   }, [user])
 
-  if (loading) return <p className="px-4 py-10 text-center text-sm text-slate-400">Carregando...</p>
+  if (loading) return <PageLoader />
 
   return (
     <div className="mx-auto max-w-3xl space-y-4 px-4 py-8">
-      <h1 className="text-2xl font-bold text-slate-800">Meus pedidos</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Meus pedidos</h1>
       {requests.length === 0 ? (
-        <p className="text-sm text-slate-400">
-          Você ainda não pediu nenhum orçamento. Escolha uma categoria na Home
-          e visite o perfil de um profissional.
-        </p>
+        <EmptyState
+          icon={ClipboardList}
+          title="Você ainda não pediu nenhum orçamento"
+          description="Escolha uma categoria na Home e visite o perfil de um profissional."
+        />
       ) : (
-        <ul className="space-y-3">
+        <div className="space-y-3">
           {requests.map((r) => {
             const convs = conversations.filter((c) => c.request_id === r.id)
             return (
-              <li key={r.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <Card key={r.id}>
                 <div className="flex items-center justify-between">
                   <p className="font-semibold text-slate-800">{r.categories?.nome ?? 'Serviço'}</p>
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
-                    {r.status}
-                  </span>
+                  <Badge>{r.status}</Badge>
                 </div>
                 <p className="mt-1 line-clamp-2 text-sm text-slate-500">{r.descricao}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -72,16 +76,17 @@ export function MyRequestsPage() {
                     <Link
                       key={c.id}
                       to={`/conversas/${c.id}`}
-                      className="rounded-lg border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100"
                     >
+                      <MessageCircle className="h-3.5 w-3.5" />
                       Conversar com {c.profiles?.nome ?? 'profissional'}
                     </Link>
                   ))}
                 </div>
-              </li>
+              </Card>
             )
           })}
-        </ul>
+        </div>
       )}
     </div>
   )

@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Inbox, MessageCircle } from 'lucide-react'
 import { useAuth } from '@/features/auth/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
+import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { PageLoader } from '@/components/ui/Spinner'
 
 interface TargetRow {
   request_id: string
@@ -45,26 +50,24 @@ export function ReceivedRequestsPage() {
     void load()
   }, [user])
 
-  if (loading) return <p className="px-4 py-10 text-center text-sm text-slate-400">Carregando...</p>
+  if (loading) return <PageLoader />
 
   return (
     <div className="mx-auto max-w-3xl space-y-4 px-4 py-8">
-      <h1 className="text-2xl font-bold text-slate-800">Pedidos recebidos</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Pedidos recebidos</h1>
       {targets.length === 0 ? (
-        <p className="text-sm text-slate-400">Nenhum pedido recebido ainda.</p>
+        <EmptyState icon={Inbox} title="Nenhum pedido recebido ainda" />
       ) : (
-        <ul className="space-y-3">
+        <div className="space-y-3">
           {targets.map((t) => {
             const conv = conversations.find((c) => c.request_id === t.request_id)
             return (
-              <li key={t.request_id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <Card key={t.request_id}>
                 <div className="flex items-center justify-between">
                   <p className="font-semibold text-slate-800">
                     {t.service_requests?.categories?.nome ?? 'Serviço'}
                   </p>
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
-                    {t.status}
-                  </span>
+                  <Badge>{t.status}</Badge>
                 </div>
                 <p className="mt-1 line-clamp-2 text-sm text-slate-500">
                   {t.service_requests?.descricao}
@@ -72,15 +75,16 @@ export function ReceivedRequestsPage() {
                 {conv && (
                   <Link
                     to={`/conversas/${conv.id}`}
-                    className="mt-3 inline-block rounded-lg border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100"
+                    className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100"
                   >
+                    <MessageCircle className="h-3.5 w-3.5" />
                     Conversar com {conv.profiles?.nome ?? 'cliente'}
                   </Link>
                 )}
-              </li>
+              </Card>
             )
           })}
-        </ul>
+        </div>
       )}
     </div>
   )

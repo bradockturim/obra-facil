@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { ChevronLeft, Printer } from 'lucide-react'
 import { supabase } from '@/lib/supabaseClient'
+import { Button } from '@/components/ui/Button'
+import { PageLoader } from '@/components/ui/Spinner'
 import type { Job, JobStage, Profile, Proposal } from '@/lib/types'
 
 export function ReceiptPage() {
@@ -51,7 +54,7 @@ export function ReceiptPage() {
     void load()
   }, [id])
 
-  if (loading) return <p className="px-4 py-10 text-center text-sm text-slate-400">Carregando...</p>
+  if (loading) return <PageLoader />
 
   if (!job) {
     return (
@@ -67,16 +70,15 @@ export function ReceiptPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6 px-4 py-8 print:px-0 print:py-0">
       <div className="flex items-center justify-between print:hidden">
-        <Link to={`/obras/${job.id}`} className="text-sm text-slate-400 hover:text-brand-600">
-          ← Acompanhamento da obra
-        </Link>
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+        <Link
+          to={`/obras/${job.id}`}
+          className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-brand-600"
         >
-          Imprimir / salvar PDF
-        </button>
+          <ChevronLeft className="h-4 w-4" /> Acompanhamento da obra
+        </Link>
+        <Button onClick={() => window.print()}>
+          <Printer className="h-4 w-4" /> Imprimir / salvar PDF
+        </Button>
       </div>
 
       <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 print:shadow-none print:ring-0">

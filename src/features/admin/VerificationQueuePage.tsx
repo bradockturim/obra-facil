@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react'
+import { FileText, ShieldCheck, UserRound } from 'lucide-react'
 import { supabase } from '@/lib/supabaseClient'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { PageLoader } from '@/components/ui/Spinner'
 import type { Profile } from '@/lib/types'
 
 interface QueueItem {
@@ -59,64 +64,64 @@ export function VerificationQueuePage() {
     void load()
   }
 
-  if (loading) return <p className="text-sm text-slate-400">Carregando...</p>
+  if (loading) return <PageLoader />
 
   if (items.length === 0) {
-    return <p className="text-sm text-slate-400">Fila de verificação vazia.</p>
+    return <EmptyState icon={ShieldCheck} title="Fila de verificação vazia" />
   }
 
   return (
-    <ul className="space-y-3">
+    <div className="space-y-3">
       {items.map((item) => (
-        <li
-          key={item.id}
-          className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-        >
-          <div className="flex items-start justify-between gap-4">
+        <Card key={item.id} className="flex items-start justify-between gap-4">
+          <div className="flex gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+              <UserRound className="h-5 w-5" />
+            </span>
             <div>
               <p className="font-semibold text-slate-800">{item.profiles?.nome ?? 'Sem nome'}</p>
               <p className="text-sm text-slate-500">{item.profiles?.whatsapp ?? 'sem WhatsApp'}</p>
               {item.referencia && (
                 <p className="mt-1 text-sm text-slate-500">Referência: {item.referencia}</p>
               )}
-              <div className="mt-2 flex gap-3 text-sm">
+              <div className="mt-2 flex gap-4 text-sm">
                 <button
                   type="button"
                   onClick={() => openSigned(item.doc_url)}
-                  className="text-brand-600 underline"
+                  className="inline-flex items-center gap-1 text-brand-600 hover:text-brand-700"
                 >
-                  Ver documento
+                  <FileText className="h-3.5 w-3.5" /> Ver documento
                 </button>
                 <button
                   type="button"
                   onClick={() => openSigned(item.selfie_url)}
-                  className="text-brand-600 underline"
+                  className="inline-flex items-center gap-1 text-brand-600 hover:text-brand-700"
                 >
-                  Ver selfie
+                  <FileText className="h-3.5 w-3.5" /> Ver selfie
                 </button>
               </div>
             </div>
-            <div className="flex shrink-0 gap-2">
-              <button
-                type="button"
-                disabled={busyId === item.id}
-                onClick={() => decide(item, 'aprovado')}
-                className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-60"
-              >
-                Aprovar
-              </button>
-              <button
-                type="button"
-                disabled={busyId === item.id}
-                onClick={() => decide(item, 'rejeitado')}
-                className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
-              >
-                Rejeitar
-              </button>
-            </div>
           </div>
-        </li>
+          <div className="flex shrink-0 gap-2">
+            <Button
+              variant="success"
+              size="sm"
+              disabled={busyId === item.id}
+              onClick={() => decide(item, 'aprovado')}
+            >
+              Aprovar
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              disabled={busyId === item.id}
+              onClick={() => decide(item, 'rejeitado')}
+            >
+              Rejeitar
+            </Button>
+          </div>
+        </Card>
       ))}
-    </ul>
+    </div>
   )
 }
