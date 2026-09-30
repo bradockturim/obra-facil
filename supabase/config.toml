@@ -1,0 +1,23 @@
+# Config mínima do Supabase CLI para o projeto Obra Fácil.
+# Use `npx supabase link --project-ref <ref>` e `npx supabase db push` para
+# aplicar as migrations de supabase/migrations/ no projeto real.
+# Ver SETUP.md para o passo a passo completo.
+project_id = "obra-facil"
+
+[db]
+major_version = 17
+
+[auth]
+enabled = true
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173"]
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
