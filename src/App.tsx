@@ -8,6 +8,13 @@ import { HomePage } from '@/routes/HomePage'
 import { CategoryListPage } from '@/features/catalog/CategoryListPage'
 import { ProfessionalPublicPage } from '@/features/professionals/ProfessionalPublicPage'
 import { OnboardingPage } from '@/features/professionals/OnboardingPage'
+import { RequestFormPage } from '@/features/requests/RequestFormPage'
+import { MyRequestsPage } from '@/features/requests/MyRequestsPage'
+import { ReceivedRequestsPage } from '@/features/requests/ReceivedRequestsPage'
+import { ConversationPage } from '@/features/chat/ConversationPage'
+import { JobListPage } from '@/features/jobs/JobListPage'
+import { JobDetailPage } from '@/features/jobs/JobDetailPage'
+import { ReceiptPage } from '@/features/jobs/ReceiptPage'
 import { AdminLayout } from '@/features/admin/AdminLayout'
 import { VerificationQueuePage } from '@/features/admin/VerificationQueuePage'
 import { CategoriesAdminPage } from '@/features/admin/CategoriesAdminPage'
@@ -28,6 +35,62 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <OnboardingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profissionais/:id/pedido"
+              element={
+                <ProtectedRoute>
+                  <RequestFormPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pedidos"
+              element={
+                <ProtectedRoute>
+                  <MyRequestsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pedidos/recebidos"
+              element={
+                <ProtectedRoute>
+                  <ReceivedRequestsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/conversas/:id"
+              element={
+                <ProtectedRoute>
+                  <ConversationPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/obras"
+              element={
+                <ProtectedRoute>
+                  <JobListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/obras/:id"
+              element={
+                <ProtectedRoute>
+                  <JobDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/obras/:id/comprovante"
+              element={
+                <ProtectedRoute>
+                  <ReceiptPage />
                 </ProtectedRoute>
               }
             />

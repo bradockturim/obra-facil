@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useAuth } from '@/features/auth/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
+import { publicUrl, uploadFile } from '@/lib/storage'
 import type { Category, DocsStatus, Neighborhood } from '@/lib/types'
 
 const STATUS_LABEL: Record<DocsStatus, string> = {
@@ -8,14 +9,6 @@ const STATUS_LABEL: Record<DocsStatus, string> = {
   em_analise: 'Em análise pela nossa equipe',
   aprovado: 'Aprovado',
   rejeitado: 'Rejeitado — entre em contato com o suporte',
-}
-
-async function uploadFile(bucket: string, userId: string, file: File) {
-  const ext = file.name.split('.').pop() ?? 'bin'
-  const path = `${userId}/${crypto.randomUUID()}.${ext}`
-  const { error } = await supabase.storage.from(bucket).upload(path, file)
-  if (error) throw error
-  return path
 }
 
 export function OnboardingPage() {
@@ -86,7 +79,7 @@ export function OnboardingPage() {
       const portfolioUrls: string[] = []
       for (const file of portfolioFiles) {
         const path = await uploadFile('portfolio', user.id, file)
-        portfolioUrls.push(supabase.storage.from('portfolio').getPublicUrl(path).data.publicUrl)
+        portfolioUrls.push(publicUrl('portfolio', path))
       }
 
       const { error: upsertError } = await supabase.from('professional_profiles').upsert({

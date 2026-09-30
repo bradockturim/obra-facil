@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useAuth } from '@/features/auth/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
 import type { Category, Neighborhood, PortfolioItem, Profile, ProfessionalProfile } from '@/lib/types'
 
@@ -9,6 +10,7 @@ interface FullProfile extends ProfessionalProfile {
 
 export function ProfessionalPublicPage() {
   const { id } = useParams<{ id: string }>()
+  const { user } = useAuth()
   const [profile, setProfile] = useState<FullProfile | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([])
@@ -109,11 +111,12 @@ export function ProfessionalPublicPage() {
           </p>
         )}
 
-        <div className="mt-6 rounded-lg bg-slate-50 p-4 text-sm text-slate-500">
-          O botão de "Pedir orçamento" chega na próxima etapa do produto
-          (pedidos, chat e propostas). Por enquanto essa página é só o
-          perfil público do profissional.
-        </div>
+        <Link
+          to={user ? `/profissionais/${id}/pedido` : '/login'}
+          className="mt-6 inline-block rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+        >
+          Pedir orçamento
+        </Link>
       </div>
 
       {portfolio.length > 0 && (

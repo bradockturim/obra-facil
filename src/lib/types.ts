@@ -54,3 +54,97 @@ export interface PortfolioItem {
   descricao: string | null
   categoria_id: string | null
 }
+
+// ─── Semana 4: pedidos, chat, propostas ────────────────────────────────
+
+export type RequestStatus = 'aberto' | 'em_atendimento' | 'concluido' | 'cancelado'
+
+export interface ServiceRequest {
+  id: string
+  cliente_id: string
+  categoria_id: string
+  descricao: string
+  fotos: string[]
+  bairro_id: string | null
+  prazo: string | null
+  status: RequestStatus
+  created_at: string
+}
+
+export type TargetStatus = 'enviado' | 'visualizado' | 'recusado' | 'proposta_enviada'
+
+export interface RequestTarget {
+  request_id: string
+  professional_id: string
+  status: TargetStatus
+  created_at: string
+}
+
+export interface Conversation {
+  id: string
+  request_id: string | null
+  cliente_id: string
+  professional_id: string
+  created_at: string
+}
+
+export interface Message {
+  id: string
+  conversation_id: string
+  autor_id: string
+  tipo: 'texto' | 'foto' | 'proposta'
+  conteudo: string | null
+  criado_em: string
+}
+
+export type ProposalStatus = 'enviada' | 'aceita' | 'recusada' | 'expirada'
+
+export interface Proposal {
+  id: string
+  conversation_id: string
+  valor_total: number
+  prazo_dias: number
+  material_por: 'cliente' | 'profissional' | 'combinado' | null
+  observacoes: string | null
+  status: ProposalStatus
+  created_at: string
+}
+
+export interface ProposalStage {
+  id: string
+  proposal_id: string
+  ordem: number
+  descricao: string
+  valor: number
+}
+
+export type JobStatus = 'em_andamento' | 'concluida' | 'cancelada' | 'em_disputa'
+
+export interface Job {
+  id: string
+  proposal_id: string
+  cliente_id: string
+  professional_id: string
+  status: JobStatus
+  comprovante_hash: string | null
+  iniciado_em: string
+  concluido_em: string | null
+}
+
+export type JobStageStatus =
+  | 'aguardando_pagamento'
+  | 'paga_retida'
+  | 'concluida_aguardando'
+  | 'aprovada'
+  | 'liberada'
+  | 'contestada'
+  | 'reembolsada'
+
+export interface JobStage {
+  id: string
+  job_id: string
+  ordem: number
+  descricao: string
+  valor: number
+  status: JobStageStatus
+}

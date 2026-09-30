@@ -22,6 +22,9 @@ supabase/.temp
 .DS_Store
 Thumbs.db
 
+# Claude Code local session state
+.claude/
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

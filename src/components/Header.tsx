@@ -2,10 +2,11 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/features/auth/AuthContext'
 
 export function Header() {
-  const { session, isAdmin, signOut } = useAuth()
+  const { session, profile, isAdmin, signOut } = useAuth()
+  const isProfessional = profile?.papeis?.includes('profissional') ?? false
 
   return (
-    <header className="border-b border-slate-200 bg-white">
+    <header className="border-b border-slate-200 bg-white print:hidden">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <Link to="/" className="text-lg font-bold text-brand-700">
           Obra Fácil
@@ -16,8 +17,22 @@ export function Header() {
           </Link>
           {session ? (
             <>
-              <Link to="/profissional/cadastro" className="hover:text-brand-700">
-                Sou profissional
+              {isProfessional ? (
+                <Link to="/pedidos/recebidos" className="hover:text-brand-700">
+                  Pedidos recebidos
+                </Link>
+              ) : (
+                <>
+                  <Link to="/pedidos" className="hover:text-brand-700">
+                    Meus pedidos
+                  </Link>
+                  <Link to="/profissional/cadastro" className="hover:text-brand-700">
+                    Sou profissional
+                  </Link>
+                </>
+              )}
+              <Link to="/obras" className="hover:text-brand-700">
+                Minhas obras
               </Link>
               {isAdmin && (
                 <Link to="/admin/verificacoes" className="hover:text-brand-700">
