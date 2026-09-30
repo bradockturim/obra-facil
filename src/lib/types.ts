@@ -147,4 +147,56 @@ export interface JobStage {
   descricao: string
   valor: number
   status: JobStageStatus
+  fotos_conclusao: string[]
+  prazo_aprovacao: string | null
+}
+
+// ─── Semana 5-6: Pagamento Garantido simulado ──────────────────────────
+
+export type PaymentStatus =
+  | 'pendente'
+  | 'pago_retido'
+  | 'liberado'
+  | 'reembolsado'
+  | 'falhou'
+  | 'expirado'
+
+export interface Payment {
+  id: string
+  stage_id: string
+  provider: string
+  metodo: 'pix' | 'cartao'
+  valor: number
+  taxa_plataforma: number
+  valor_liquido: number
+  status: PaymentStatus
+  simulado: boolean
+  criado_em: string
+  pago_em: string | null
+  liberado_em: string | null
+}
+
+export type LedgerEntryTipo = 'credito_retido' | 'credito_liberado' | 'taxa' | 'estorno'
+
+export interface LedgerEntry {
+  id: string
+  user_id: string
+  payment_id: string
+  tipo: LedgerEntryTipo
+  valor: number
+  simulado: boolean
+  criado_em: string
+}
+
+export interface Dispute {
+  id: string
+  stage_id: string
+  aberta_por: string
+  motivo: string
+  fotos: string[]
+  decisao: 'liberar' | 'reembolsar' | 'dividir' | null
+  valor_cliente: number | null
+  valor_profissional: number | null
+  resolvida_em: string | null
+  created_at: string
 }

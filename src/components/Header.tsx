@@ -18,9 +18,14 @@ export function Header() {
           {session ? (
             <>
               {isProfessional ? (
-                <Link to="/pedidos/recebidos" className="hover:text-brand-700">
-                  Pedidos recebidos
-                </Link>
+                <>
+                  <Link to="/pedidos/recebidos" className="hover:text-brand-700">
+                    Pedidos recebidos
+                  </Link>
+                  <Link to="/financeiro" className="hover:text-brand-700">
+                    Financeiro
+                  </Link>
+                </>
               ) : (
                 <>
                   <Link to="/pedidos" className="hover:text-brand-700">

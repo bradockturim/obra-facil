@@ -15,9 +15,13 @@ import { ConversationPage } from '@/features/chat/ConversationPage'
 import { JobListPage } from '@/features/jobs/JobListPage'
 import { JobDetailPage } from '@/features/jobs/JobDetailPage'
 import { ReceiptPage } from '@/features/jobs/ReceiptPage'
+import { CheckoutPage } from '@/features/payments/CheckoutPage'
+import { ProfessionalLedgerPage } from '@/features/finance/ProfessionalLedgerPage'
 import { AdminLayout } from '@/features/admin/AdminLayout'
 import { VerificationQueuePage } from '@/features/admin/VerificationQueuePage'
 import { CategoriesAdminPage } from '@/features/admin/CategoriesAdminPage'
+import { FinanceAdminPage } from '@/features/admin/FinanceAdminPage'
+import { DisputesAdminPage } from '@/features/admin/DisputesAdminPage'
 
 export default function App() {
   return (
@@ -95,6 +99,22 @@ export default function App() {
               }
             />
             <Route
+              path="/obras/:jobId/etapas/:stageId/pagar"
+              element={
+                <ProtectedRoute>
+                  <CheckoutPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/financeiro"
+              element={
+                <ProtectedRoute>
+                  <ProfessionalLedgerPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin"
               element={
                 <AdminRoute>
@@ -105,6 +125,8 @@ export default function App() {
               <Route index element={<Navigate to="verificacoes" replace />} />
               <Route path="verificacoes" element={<VerificationQueuePage />} />
               <Route path="categorias" element={<CategoriesAdminPage />} />
+              <Route path="financeiro" element={<FinanceAdminPage />} />
+              <Route path="contestacoes" element={<DisputesAdminPage />} />
             </Route>
           </Route>
         </Routes>
