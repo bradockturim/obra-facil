@@ -136,8 +136,8 @@ function CampaignsTab() {
     try {
       let criativoUrl: string | null = null
       if (criativo) {
-        const path = await uploadFile('ads', user.id, criativo)
-        criativoUrl = publicUrl('ads', path)
+        const path = await uploadFile('midia-campanhas', user.id, criativo)
+        criativoUrl = publicUrl('midia-campanhas', path)
       }
       const { data: campaign, error: insertError } = await supabase
         .from('ad_campaigns')
